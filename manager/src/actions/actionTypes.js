@@ -1,0 +1,4 @@
+// investigation
+export const INVESTIGATION_FETCH_SORT_PARAM = 'INVESTIGATION_FETCH_SORT_PARAM';
+
+// word

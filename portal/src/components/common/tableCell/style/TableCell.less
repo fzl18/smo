@@ -1,0 +1,132 @@
+.editable-cell {
+   padding: 8px 2px;
+   .editable-cell-text-wrapper{
+     //min-height:28px;
+   }
+   .editable-cell-date-wrapper{
+      //min-height:28px;
+      padding: 0px 15px 0px 5px;
+   }
+   .un-editable{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: 12px;
+    color: #ccc;
+    transform: scale(0.7, 0.7);
+    -webkit-transform: scale(0.7, 0.7);
+    -ms-transform: scale(0.7, 0.7);
+
+   }
+   .clear-icon{
+     display: none;
+   }
+   &:hover{
+    .clear-icon{
+      display: block;
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      margin-top: -6px;
+      z-index: 0;
+      color:rgba(0,0,0,.25);
+      font-size:12px;
+      &:hover{
+        color: rgba(0,0,0,.43);
+        cursor: pointer;
+      }
+    }
+   }
+   textarea.ant-input{
+     overflow-x:hidden
+   }
+  }
+  //p{
+  // &.nowrap{
+  //   white-space:nowrap;
+  // }
+  
+  //}
+  .editable-cell-input-wrapper,
+  .editable-cell-text-wrapper {
+    padding-right: 24px;
+  }
+
+  .editable-cell-text-wrapper {
+    padding: 5px 24px 5px 5px;
+  }
+
+  .editable-cell-icon,
+  .editable-cell-icon-check {
+    position: absolute;
+    right: 2px;
+    width: 20px;
+    top: 50%;
+    margin-top: -10px;
+    cursor: pointer;
+  }
+
+  .editable-cell-icon {
+    line-height: 18px;
+    display: none;
+  }
+
+  .editable-cell-icon-check {
+    line-height: 28px;
+  }
+
+  .editable-cell:hover .editable-cell-icon {
+    display: inline-block;
+  }
+
+  .editable-cell-icon:hover,
+  .editable-cell-icon-check:hover {
+    color: #108ee9;
+  }
+
+  .editable-add-btn {
+    margin-bottom: 8px;
+  }
+  td{
+    position: relative;
+  }
+  .pop{
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-left: 10px solid transparent;
+    border-top: 10px solid rgba(0,0,0,.6);
+    &.nopop{
+      border-top: 10px solid rgba(0,0,0,.1);
+    }
+  }
+  td:hover{
+    .pop{
+      border-top: 10px solid rgba(0,0,0,1);
+      &.nopop{
+        border-top: 10px solid rgba(0,0,0,.3);
+      }
+    }
+  }
+.table-cell-row{
+  .ant-table-tbody{
+    tr{
+      &.ant-table-row{
+        td{
+          padding: 2px 10px 2px 4px;
+          .indent-level-1{
+            display:none;
+          }
+          .ant-table-row-spaced{
+            display:none;
+          }
+          .ant-table-row-expand-icon{
+            position: absolute;
+            top:50% ;
+            margin-top: -8px;
+          }
+        }
+      }
+    }
+  }
+}

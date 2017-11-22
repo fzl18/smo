@@ -1,0 +1,642 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <title>人员分布</title>
+    <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main.css?v=1.0?v=1.0" />
+    <!-- <script src="https://webapi.amap.com/js/marker2.js"></script> -->
+    <!-- <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.4.0&key=acfe339236c6150eb8e5582f5362843d&plugin=AMap.DistrictSearch"></script> -->
+    <!-- <script src="http://webapi.amap.com/ui/1.0/main.js"></script> -->
+
+    <style type="text/css">
+        #tip {
+            background-color: #fff;
+            padding: 0 10px;
+            border: 1px solid silver;
+            box-shadow: 3px 4px 3px 0px silver;
+            position: absolute;
+            font-size: 12px;
+            right: 10px;
+            top: 5px;
+            border-radius: 3px;
+            line-height: 36px;
+        }
+
+        body,
+        html,
+        #container {
+            height: 100%;
+            margin: 0px;
+            font: 12px Arial;
+        }
+
+        /* .circle {
+            border-radius: 6px;
+            border: solid 1px silver;
+            height: 16px;
+            padding: 3px;
+            text-align: center;
+            line-height: 18px;
+            min-width: 100px;
+            color: white;
+        } */
+
+        .circle{
+            border:1px solid #8e8e8e;
+            width:auto;
+            height: 22px;
+            border-radius: 5px 5px 5px 0;
+            left: 0;top:0;
+            color:#555;background-color:#fffeef;font-size:12px;white-space:nowrap;position:absolute;
+        }
+
+        .circle:before{
+            content:'';
+            display: block;
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: solid rgba(0,0,0,0);
+            border-width: 6px;
+            left: 13px;
+            bottom:-13px;
+            border-top-color:#8e8e8e;
+        }
+        .circle:after{
+            content: '';
+            display: block;
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 6px solid rgba(0,0,0,0);
+            left: 13px;
+            bottom: -12px;
+            border-top-color: #fffeef;
+        }
+        .circle .name{
+            vertical-align: middle;
+            padding: 3px 5px;
+            display: inline-block;
+            height: 16px;
+            line-height: 16px;
+            border-radius: 5px 0 0 0;
+        }
+        .circle .amount{
+            background-color: #dc3912;
+            vertical-align: middle;
+            padding: 3px 5px;
+            display: inline-block;
+            height: 16px;
+            line-height: 16px;
+            color: #fff;
+            border-radius: 0 5px 5px 0;
+        }
+        .amap-ui-infowindow-body{
+            max-height: 200px;
+            overflow: auto;
+        }
+        .crcUser{
+            margin: 0px;
+            padding: 3px 5px;
+
+        }
+        .crcUser:nth-child(odd){
+            background-color: #f9f9f9;
+        }
+        .autocomplete-suggestions { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; border: 1px solid #999; background: #FFF; cursor: default; overflow: auto; -webkit-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64); -moz-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64); box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64); }
+        .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
+        .autocomplete-no-suggestion { padding: 2px 5px;}
+        .autocomplete-selected { background: #F0F0F0; }
+        .autocomplete-suggestions strong { font-weight: bold; color: #000; }
+        .autocomplete-group { padding: 2px 5px; font-weight: bold; font-size: 16px; color: #000; display: block; border-bottom: 1px solid #000; }
+        .mask{
+            position: relative; top: 0px; filter: alpha(opacity=60); background-color: #777;     
+            z-index: 1002; left: 0px;     
+            opacity:0.5; -moz-opacity:0.5;
+            width: 100%;
+            height: 100%;
+
+        }
+        .loading{
+            position: absolute;
+            left: 48%;
+            top: 48%
+        }
+        svg path,
+        svg rect{
+        fill: #FF6700;
+        }
+        .hidden{
+            display:none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mapContainer"></div>
+    <div id="tip">
+        省：<select id='province' style="width:100px"></select> 市：
+        <select id='city' style="width:100px"></select>
+        <select id='district' class="hidden" style="width:100px"></select>
+        <select id='street' class="hidden" style="width:100px"></select>
+        <!-- <input type="text" id="keyword" name="keyword" value="工号\姓名" onfocus='this.value=""'/> -->
+        人员：
+        <input type="text" name="keyword" id="keyword" placeholder="输入工号\姓名"/>
+    </div>
+    <div class="mask">
+        <span class="loading">
+            <svg version="1.1" id="loader-1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                width="40px" height="40px" viewBox="0 0 50 50" style="enable-background:new 0 0 50 50;" xml:space="preserve">
+            <path fill="#000" d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z">
+            <animateTransform attributeType="xml"
+                attributeName="transform"
+                type="rotate"
+                from="0 25 25"
+                to="360 25 25"
+                dur="0.6s"
+                repeatCount="indefinite"/>
+            </path>
+            </svg>
+        </span>
+    </div>
+    <script type="text/javascript">
+        var MAP_KEY = window.parent.configs.MAP_KEY;
+        function loadScript( url, callback ) {
+            var script = document.createElement( "script" )
+            script.type = "text/javascript";
+            if(script.readyState) {  //IE
+                script.onreadystatechange = function() {
+                if ( script.readyState === "loaded" || script.readyState === "complete" ) {
+                    script.onreadystatechange = null;
+                    callback();
+                }
+                };
+            } else {  //Others
+                script.onload = function() {
+                callback();
+                };
+            }
+            script.src = url;
+            document.getElementsByTagName( "head" )[0].appendChild( script );
+        }
+
+        function showUsers(){
+            var map, district, polygons = [], citycode;
+                var citySelect = document.getElementById('city');
+                var districtSelect = document.getElementById('district');
+                var areaSelect = document.getElementById('street');
+                var searchUserId = 0;
+                var cityMarkers = [];//市标注
+                var hosMarkers = [];//医院标注
+                var markers = []; //省标注
+                map = new AMap.Map('mapContainer', {
+                    resizeEnable: true,
+                    center: [116.30946, 39.937629],
+                    zoom: 4
+                });
+                //行政区划查询
+                var opts = {
+                    subdistrict: 1,   //返回下一级行政区
+                    showbiz: false  //最后一级返回街道信息
+                };
+                district = new AMap.DistrictSearch(opts);//注意：需要使用插件同步下发功能才能这样直接使用
+                district.search('中国', function (status, result) {
+                    if (status == 'complete') {
+                        getData(result.districtList[0]);
+                    }
+                });
+                function getData(data, level) {
+                    var bounds = data.boundaries;
+                    if (bounds) {
+                        for (var i = 0, l = bounds.length; i < l; i++) {
+                            var polygon = new AMap.Polygon({
+                                map: map,
+                                strokeWeight: 1,
+                                strokeColor: '#CC66CC',
+                                fillColor: '#CCF3FF',
+                                fillOpacity: 0.5,
+                                path: bounds[i]
+                            });
+                            polygons.push(polygon);
+                        }
+                        //map.setFitView();//地图自适应
+                    }
+
+                    //清空下一级别的下拉列表
+                    if (level === 'province') {
+                        citySelect.innerHTML = '';
+                        districtSelect.innerHTML = '';
+                        areaSelect.innerHTML = '';
+                    } else if (level === 'city') {
+                        districtSelect.innerHTML = '';
+                        areaSelect.innerHTML = '';
+                    } else if (level === 'district') {
+                        areaSelect.innerHTML = '';
+                    }
+
+                    var subList = data.districtList;
+                    if (subList) {
+                        var contentSub = new Option('--请选择--');
+                        var curlevel = subList[0].level;
+                        var curList = document.querySelector('#' + curlevel);
+                        curList.add(contentSub);
+                        for (var i = 0, l = subList.length; i < l; i++) {
+                            var name = subList[i].name;
+                            var levelSub = subList[i].level;
+                            var cityCode = subList[i].citycode;
+                            contentSub = new Option(name);
+                            contentSub.setAttribute("value", levelSub);
+                            contentSub.center = subList[i].center;
+                            contentSub.adcode = subList[i].adcode;
+                            curList.add(contentSub);
+                        }
+                    }
+
+                }
+                
+                function search(obj) {
+                    //清除地图上所有覆盖物
+                    for (var i = 0, l = polygons.length; i < l; i++) {
+                        polygons[i].setMap(null);
+                    }
+                    var option = obj[obj.options.selectedIndex];
+                    var keyword = option.text; //关键字
+                    var adcode = option.adcode;
+                    district.setLevel(option.value); //行政区级别
+                    district.setExtensions('all');
+                    //行政区查询
+                    //按照adcode进行查询可以保证数据返回的唯一性
+                    district.search(adcode, function (status, result) {
+                        if (status === 'complete') {
+                            getData(result.districtList[0], obj.id);
+                        }
+                        if(result.districtList[0].level == "province"){
+                            
+                            map.setZoomAndCenter(7,result.districtList["0"].center);
+                        }else if(result.districtList[0].level == "city"){
+                            map.setZoomAndCenter(9,result.districtList["0"].center);
+                        }else if(result.districtList[0].level == "district"){
+                            map.setZoomAndCenter(10,result.districtList["0"].center);
+                        }
+                        // map.setZoom(10);
+                        // map.setFitView();
+                    });
+                }
+                function setCenter(obj) {
+                    map.setZoomAndCenter(12,obj[obj.options.selectedIndex].center)
+                }
+
+
+
+                function getParameterByName(name) {
+                    var match = new RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+                    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+                }
+
+
+
+            //infowindow
+            AMapUI.loadUI(['overlay/SimpleInfoWindow'], function(SimpleInfoWindow) {
+                $("#province").on("change", function(){
+                    search(this);
+                })
+                $("#city").on("change", function(){
+                    search(this);
+                })
+                var title = "人员信息";
+                // var marker = new AMap.Marker({
+                //     map: map,
+                //     zIndex: 9999999,
+                //     position: map.getCenter()
+                // });
+                // $("#keyword").click(function(){
+                //     alert(1);
+                // })
+                $.getScript(window.parent.configs.SAML_URL + "/lib/js/jquery.autocomplete.min.js").done(function() {
+                    // var countries = [
+                    //     { value: 'Andorra', data: 'AD' },
+                    //     // ...
+                    //     { value: 'Zimbabwe', data: 'ZZ' }
+                    // ];
+
+                    // $('#keyword').autocomplete({
+                    //     lookup: countries,
+                    //     onSelect: function (suggestion) {
+                    //         alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+                    //     }
+                    // });
+                    
+                });
+                
+                var infoWindow = new SimpleInfoWindow({
+                    //模板, underscore
+                    infoTitle: '<strong><%- title %></strong>',
+                    infoBody: '<p class="my-desc">' +
+                        //<%= 原值插入 ..
+                        '<%= img %>' +
+                        //<%- html编码后插入
+                        '<%- body %>' +
+                        '<div class="mybtn">点击事件获取</div>' +
+                        '</p>',
+                    //模板数据
+                    infoTplData: {
+                        title: title,
+                        img: '',
+                        body: ""
+                    },
+
+                    //基点指向marker的头部位置
+                    offset: new AMap.Pixel(0, -10)
+                });
+
+                function queryLocationUsers(extData,id,type,e){
+                    var sUserId = "";
+                    if(searchUserId){
+                        sUserId += "&searchUserId=" + searchUserId;
+                    }
+                    $.get(window.parent.configs.ADMIN_URL + '/user/queryLocationUsers.do?curEnterpriseId=' + sessionStorage.getItem("curEnterpriseId") + sUserId + "&curRoleCode=" + sessionStorage.getItem("curRole") + "&curUserId=" + sessionStorage.getItem("userId") + "&curInvId=" + sessionStorage.getItem("invId") + "&id=" + id + "&type=" + type, function(data) {
+                        $(".mask").hide();
+                        if(data.error){
+                            if(data.error == "NOACCESS"){
+                                window.parent.location.href = window.parent.configs.SAML_URL + "/#" ;
+                                                return;
+                                            }
+                            alert(data.error);
+                            return;
+                        }
+                        var userList = data.data;
+                        var infoBody = "";
+                        if(type == "HOSPITAL"){
+                            for(var i=0; i< userList.length; i++){
+                                infoBody += "<p class='crcUser'>";
+                                var invList = "";
+                                var invArr = userList[i].investigationList;
+                                if(invArr){
+                                    invList += "("
+                                    for(var j=0; j < invArr.length; j++){
+                                        invList+= invArr[j].investigationName;
+                                        if(j<invArr.length -1){
+                                            invList+=",";
+                                        }
+                                    }
+                                    invList += ")";
+                                }
+
+                                infoBody += "<span title=" + userList[i].employeeCode + " userId=" + userList[i].userId + ">" + userList[i].userCompellation + invList + "</span>";
+                                infoBody += "</p>";   
+                            }
+                        }else{
+                            for(var i=0; i< userList.length; i++){
+                                infoBody += "<span title=" + userList[i].employeeCode + " userId=" + userList[i].userId + ">" + userList[i].userCompellation + "</span>";
+                                if(i < userList.length - 1){
+                                    infoBody += ",";
+                                }
+                            }
+                        }
+                        if(userList.length == 0){
+                            infoBody += "无";
+                        }
+                        infoWindow.setInfoBody(infoBody);
+                        infoWindow.open(map, e.lnglat);
+                    });
+                }
+
+                function openInfoWin(e) {
+                    setInfo(e);
+                    var extData = e.target.getExtData();
+                    var id,type;
+                    if(extData){
+                        id = extData.id;
+                        type = extData.type;
+                    }
+                    $(".mask").show();
+                    queryLocationUsers(extData,id,type,e);
+                }
+
+                function setInfo(e){
+                    e.lnglat;
+                }
+
+                infoWindow.get$InfoBody().on('click', '.mybtn', function(event) {
+                                //阻止冒泡
+                                event.stopPropagation();
+                                alert('Click .mybtn of infoBody');
+                            });
+
+                function queryUserLocation(userId){
+                    var url = window.parent.configs.ADMIN_URL + '/user/queryUserLocation.do?curEnterpriseId=' + sessionStorage.getItem("curEnterpriseId") + "&curRoleCode=" + sessionStorage.getItem("curRole") + "&curInvId=" + sessionStorage.getItem("invId") + "&curUserId=" + sessionStorage.getItem("userId");
+                    if(userId){
+                        url += "&searchUserId=" + userId
+                    }
+                    $.get(url, function(data) {
+                        $(".mask").hide();
+                            if(data.error){
+                                if(data.error == "NOACCESS"){
+                                                window.parent.location.href = window.parent.configs.SAML_URL + "/#" ;
+                                                return;
+                                            }
+                                alert(data.error);
+                                return;
+                            }
+                            var createMarker = function (data, hide) {
+                            var div = document.createElement('div');
+                            div.className = 'circle';
+                            var r = Math.floor(data.count / 1024);
+                            //div.style.backgroundColor = hide ? '#393' : '#09f';
+                            div.innerHTML = "<span class='name'>" + data.name + "</span><span class='amount'>" + data.count || 0 + "</span>";
+                            var marker = new AMap.Marker({
+                                content: div,
+                                title: data.name,
+                                position: data.center.split(','),
+                                offset: new AMap.Pixel(-18, -30),
+                                zIndex: data.count,
+                                extData: {id: data.id, type: data.type, name: data.name}
+                            });
+                            marker.subMarkers = [];
+                            // if (data.name === '北京市' || data.name === '河南省') {
+                            //     marker.setLabel({ content: '&larr;请点击', offset: new AMap.Pixel(45, 0) })
+                            //     //map.setCenter(marker.getPosition());
+                            // }
+                            if (!hide) {
+                                marker.setMap(map)
+                            }
+                            if (data.subDistricts && data.subDistricts.length) {
+                                for (var i = 0; i < data.subDistricts.length; i += 1) {
+                                    marker.subMarkers.push(createMarker(data.subDistricts[i], true));
+                                }
+                            }
+                            return marker;
+                        }
+                        var _onZoomEnd = function (e) {
+                            // if (map.getZoom() < 6) {
+                            //     for (var i = 0; i < markers.length; i += 1) {
+                            //         map.remove(markers[i].subMarkers)
+                            //     }
+                            //     map.add(markers);
+                            // }
+                            infoWindow.close();
+                            if (map.getZoom() <= 6) {
+                                map.remove(cityMarkers);
+                                map.add(markers);
+                                map.remove(hosMarkers);
+                            }else if(map.getZoom() > 6 && map.getZoom() < 9){
+                                map.remove(markers);
+                                map.add(cityMarkers);
+                                map.remove(hosMarkers);
+                            }else if(map.getZoom() > 8){
+                                map.remove(markers);
+                                map.remove(cityMarkers);
+                                map.add(hosMarkers);
+                            }
+
+                        }
+                        var _onClick = function (e) {
+                            // if (e.target.subMarkers.length) {
+                            //     map.add(e.target.subMarkers);
+                            //     map.setFitView(e.target.subMarkers);
+                            //     map.remove(markers)
+                            // }
+                                
+                            openInfoWin(e);
+                        }
+
+                        var _onClickHos = function (e) {
+                            // if (e.target.subMarkers.length) {
+                            //     map.add(e.target.subMarkers);
+                            //     map.setFitView(e.target.subMarkers);
+                            //     map.remove(markers)
+                            // }
+                                
+                            openInfoWin(e);
+                        }
+                        
+                        if(data.cityList){
+                            var citys = data.cityList;//城市标注
+                            
+                            for (var i = 0; i < citys.length; i += 1) {
+                                if(citys[i].center){
+                                    if(map.getZoom() < 6){
+                                        var cityMarker = createMarker(citys[i], true);
+                                    }else{
+                                        var cityMarker = createMarker(citys[i], false);
+                                    }
+                                    
+                                    cityMarkers.push(cityMarker);
+                                    AMap.event.addListener(cityMarker, 'click', _onClick);
+                                }
+                            }
+                        }
+                        if(data.provinceList){//province markers
+                            var provinces = data.provinceList;
+                            
+                            for (var i = 0; i < provinces.length; i += 1) {
+                                if(provinces[i].center){
+                                var marker = createMarker(provinces[i]);
+                                markers.push(marker);
+                                AMap.event.addListener(marker, 'click', _onClick)
+                                }
+                            }
+                        }
+                        if(data.hospitalList){
+                            var hospitals = data.hospitalList;
+                            
+                            for (var i = 0; i < hospitals.length; i += 1) {
+                                if(hospitals[i].center){
+                                    if(map.getZoom() < 6){
+                                        var hosMarker = createMarker(hospitals[i], true);
+                                    }else{
+                                        var hosMarker = createMarker(hospitals[i], false);
+                                    }
+                                    
+                                    hosMarkers.push(hosMarker);
+                                    AMap.event.addListener(hosMarker, 'click', _onClick);
+                                }
+                            }
+                        }
+                        AMap.event.addListener(map, 'zoomend', _onZoomEnd);
+                        $('#keyword').autocomplete({
+                                lookup: function (query, done) {
+                                    // Do Ajax call or lookup locally, when done,
+                                    // call the callback and pass your results:
+                                    $.get(window.parent.configs.ADMIN_URL + '/user/queryCRCListByKeyword.do?curEnterpriseId=' + sessionStorage.getItem("curEnterpriseId") + "&curRoleCode=" + sessionStorage.getItem("curRole") + "&curInvId=" + sessionStorage.getItem("invId") + "&curUserId=" + sessionStorage.getItem("userId") + "&keyword=" + query, function(data) {
+                                        // console.log(data);
+                                        if(data.error){
+                                            if(data.error == "NOACCESS"){
+                                                window.parent.location.href = window.parent.configs.SAML_URL + "/#" ;
+                                                return;
+                                            }
+                                            alert(data.error);
+                                            return;
+                                        }
+                                        var datas = data.data.crcList;
+                                        var result = {suggestions:[]}
+                                        var suArr = [];
+                                        for(var i=0; i< datas.length ;i++){
+                                            suArr.push({"value": datas[i].employeeName + "(" + datas[i].employeeCode + ")", "data": datas[i].userId})
+
+                                        }
+                                        result.suggestions = suArr;
+                                        done(result);
+                                        
+                                    });
+                                },
+                                onSelect: function (suggestion) {
+                                    //alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+                                    map.remove(markers);
+                                        map.remove(cityMarkers);
+                                        map.remove(hosMarkers);
+                                        markers = [];
+                                        cityMarkers = [];
+                                        hosMarkers = [];
+                                        map.setZoom(4);
+                                        searchUserId = suggestion.data;
+                                        $(".mask").show();
+                                    queryUserLocation(suggestion.data);
+                                    
+                                }
+                            });
+                            $("#keyword").on("change",function(e){
+                                if(e.target.value == ""){
+                                    map.remove(markers);
+                                    map.remove(cityMarkers);
+                                        map.remove(hosMarkers);
+                                        markers = [];
+                                        cityMarkers = [];
+                                        hosMarkers = [];
+                                        map.setZoom(4);
+                                        searchUserId = 0;
+                                        $(".mask").show();
+                                    queryUserLocation();
+                                }
+                            })
+                    });
+                }
+
+                
+
+                $(".mask").show();
+                queryUserLocation();
+            });
+        }
+
+        loadScript('http://webapi.amap.com/maps?v=1.4.0&key='+ MAP_KEY +'&plugin=AMap.DistrictSearch', function() {
+
+                        loadScript("http://webapi.amap.com/ui/1.0/main.js", function() {
+                            if(!AMap.UA){
+                                setTimeout(window.location.reload.bind(window.location),1000)
+                            }else{showUsers();}
+                   });
+
+        });
+
+        
+    </script>
+    <!-- <script type="text/javascript" src="http://webapi.amap.com/demos/js/liteToolbar.js"></script> -->
+
+
+</body>
+
+</html>

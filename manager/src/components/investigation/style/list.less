@@ -1,0 +1,102 @@
+.preview-modal {
+    .ant-modal-body {
+        padding: 0;
+        background: #fff;
+    }
+}
+
+.filter-bar {
+    margin-bottom: 20px;
+    .form-item, button{
+        margin-right:10px;
+    }
+    &:after{
+        clear: both;
+    }
+    button{
+        float: right;
+        margin-top: 5px;
+    }
+}
+
+.filter-bar-investigation {
+    display: block;
+    padding-right: 76px;
+//   display: flex;
+//   justify-content: flex-end;
+//   align-items: flex-end;
+    .form-item{
+        float: left;
+        margin:5px;
+        .ui-label{
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .ant-input{
+            width: 110px;
+        }
+        .ant-input-group{
+            width: 148px;
+            display: inline-block;
+        }
+    }
+    &:after{
+        content:""; display:block; height:0; visibility:hidden; clear:both;
+    }
+}
+
+.preview-list {
+    li:nth-child(odd) {
+        background: #f9f9f9;
+    }
+    li {
+        overflow: hidden;
+        padding: 10px 15px;
+        .item {
+            float: left;
+            width: 50%;
+            padding-left: 140px;
+            .ui-label {
+                padding: 0 0 0 20px;
+                position: relative;
+                float: left;
+                width: 140px;
+                margin-left: -140px;
+                text-align: right;
+                &:after {
+                    content: ":";
+                    margin: 0 8px 0 2px;
+                    position: relative;
+                    top: -.5px;
+                }
+            }
+
+        }
+    }
+}
+
+.create-form {
+    .field {
+        overflow: hidden;
+        .ant-form-item {
+            float: left;
+            width: 50%;
+        }
+    }
+    .field-max {
+        overflow: hidden;
+    }
+    .ant-form-item {
+        padding-left: 110px;
+    }
+    .ant-form-item-label {
+        float: left;
+        width: 110px;
+        margin-left: -110px;
+    }
+}
+
+
+.preview-list li .item{
+    white-space: pre-wrap;
+}

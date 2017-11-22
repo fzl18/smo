@@ -1,0 +1,111 @@
+@import "../../../style/index";
+
+@menu-prefix-cls: ~"@{ant-prefix}-menu";
+
+.nav-bar {
+    background-color: @primary-color;
+    margin-bottom: 20px;
+    .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+        background-color: #aedccd;
+    }
+
+    .@{menu-prefix-cls} {
+        float: left;
+        box-shadow: none;
+        background: transparent;
+        line-height: 46px;
+
+        &-item:active,
+        &-submenu-title:active {
+            background: @nav-item-active-bg;
+        }
+
+        &-item > a {
+            display: block;
+            color: @text-color;
+            &:hover {
+                color: @primary-color;
+            }
+        }
+
+        &-item:hover,
+        &-item-active,
+        &:not(.ant-menu-inline) &-submenu-open,
+        &-submenu-active {
+            color: @nav-text-color;
+        }
+
+        &-horizontal &-item,
+        &-horizontal &-submenu {
+            margin-top: 0;
+        }
+
+        &-horizontal > &-item:hover,
+        &-horizontal > &-item-active,
+        &-horizontal > &-submenu &-submenu-title:hover {
+            background-color: transparent;
+        }
+
+        &-item-selected {
+            color: @nav-text-color;
+            > a,
+            > a:hover {
+                color: @nav-text-color;
+            }
+        }
+
+        &:not(.ant-menu-horizontal) &-item-selected {
+            background-color: #aedccd;
+        }
+
+        &-item,
+        &-submenu-title {
+            margin: 0;
+            padding: 0;
+            .icon {
+                min-width: 14px;
+                margin-right: 8px;
+            }
+        }
+
+        &-horizontal {
+            border-bottom: 0 none;
+
+            > .@{menu-prefix-cls}-item,
+            > .@{menu-prefix-cls}-submenu {
+                position: relative;
+                float: left;
+                border-bottom: 0 none;
+                padding: 0 40px;
+                margin-top: 0;
+                top: 0;
+                height: 46px;
+
+                &:hover,
+                &-active,
+                &-open,
+                &-selected {
+                    border-bottom: 0 none;
+                    color: @nav-text-color;
+                    background: @nav-item-active-bg;
+                }
+
+                > a {
+                    display: block;
+                    font-size: 14px;
+                    color: @nav-text-color;
+                    &:hover {
+                        color: @nav-text-color;
+                    }
+                }
+
+            }
+            > .ant-menu-submenu-horizontal {
+                > .ant-menu-submenu-title {
+                    font-size: 14px;
+                    color: @nav-text-color;
+                }
+            }
+        }
+    }
+}
